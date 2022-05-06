@@ -23,10 +23,6 @@ def get_data(config_path):
     data.to_csv(raw_local_file_path, sep=';', index=False)
 
 
-
-
-
-
 if __name__ == "__main__":
     args = argparse.ArgumentParser()
 
