@@ -2,37 +2,49 @@ stages:
   load_data:
     cmd: python src/stage_01_load_save.py --config=config/config.yaml
     deps:
-      - src\stage_01_load_save.py
+      - src/stage_01_load_save.py
       - src/utils/all_utils.py
       - config/config.yaml
     outs:
-      - artifacts\raw_local_dir\data.csv
+      - artifacts/raw_local_dir/data.csv
   
   split_data:
     cmd: python src/stage_02_split_data.py --config=config/config.yaml --params=params.yaml
     deps:
-      - src\stage_02_split_data.py
+      - src/stage_02_split_data.py
       - src/utils/all_utils.py
-      - artifacts\raw_local_dir\data.csv
+      - artifacts/raw_local_dir/data.csv
       - config/config.yaml
       - params.yaml
     params:
       - base.test_size
       - base.random_state
     outs:
-      - artifacts\split_data_dir\train.csv
-      - artifacts\split_data_dir\test.csv
+      - artifacts/split_data_dir/train.csv
+      - artifacts/split_data_dir/test.csv
 
   model_training:
     cmd: python src/stage_03_model_training.py --config=config/config.yaml --params=params.yaml
     deps:
-      - src\stage_03_model_training.py
+      - src/stage_03_model_training.py
       - src/utils/all_utils.py
-      - artifacts\split_data_dir\train.csv
+      - artifacts/split_data_dir/train.csv
       - config/config.yaml
       - params.yaml
     params:
       - model_params.ElasticNet.alpha
       - model_params.ElasticNet.l1_ratio
     outs:
-      - artifacts\model_dir\ElasticNet.model
+      - artifacts/model_dir/ElasticNet.model
+
+  Evaluation:
+    cmd: python src/stage_04_evaluate.py --config=config/config.yaml --params=params.yaml
+    deps:
+      - src/stage_03_model_training.py
+      - src/utils/all_utils.py
+      - artifacts/split_data_dir/test.csv
+      - artifacts/model_dir/ElasticNet.model
+      - config/config.yaml
+      - params.yaml
+    outs:
+      - artifacts/reports_dir/scores.json
